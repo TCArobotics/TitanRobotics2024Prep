@@ -11,6 +11,7 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 
 import frc.robot.data.PortMap;
+import frc.robot.data.Settings;
 import frc.robot.sub.Controllers;
 
 public class SwerveDrive extends ControlSubSystems
@@ -18,10 +19,21 @@ public class SwerveDrive extends ControlSubSystems
     public final double Length = 1; //change to actual measurement of distance between axles on each side of robot
     public final double Width = 1; //change to actual measurement of distance between axles on each side of robot
 
-    private CANSparkMax angleMotor; //change if different motors are used
-    private CANSparkMax speedMotor;
-    public RelativeEncoder angleMotorEncoder;
-    public PIDController pidController;
+    double backRightSpeed;
+    double backLeftSpeed;
+    double frontRightSpeed;
+    double frontLeftSpeed;
+
+    double backRightAngle;
+    double backLeftAngle;
+    double frontRightAngle;
+    double frontLeftAngle;    
+    
+    SwerveModule mFL;
+    SwerveModule mFR;
+    SwerveModule mBL;
+    SwerveModule mBR;
+
     DriveSave driveSave;
 
     private static SwerveDrive mSwerveInstance = null;
@@ -36,40 +48,79 @@ public class SwerveDrive extends ControlSubSystems
 
     public SwerveDrive()
     {
-        pidController = new PIDController(1, 0, 0);
-        angleMotor = new CANSparkMax(PortMap.clawCANID.portNumber, MotorType.kBrushless); //change if different motors are used
-        speedMotor = new CANSparkMax(PortMap.clawCANID.portNumber, MotorType.kBrushless); //change if different motors are used
-        angleMotorEncoder = angleMotor.getEncoder();
+        mFL = new SwerveModule(new CANSparkMax(PortMap.SWERVEFRONTLEFTSPEEDCANMOTOR.portNumber, MotorType.kBrushless), new CANSparkMax(PortMap.SWERVEFRONTLEFTANGLECANMOTOR.portNumber, MotorType.kBrushless)); //Front Left
+        mFR = new SwerveModule(new CANSparkMax(PortMap.SWERVEFRONTRIGHTSPEEDCANMOTOR.portNumber, MotorType.kBrushless), new CANSparkMax(PortMap.SWERVEFRONTRIGHTANGLECANMOTOR.portNumber, MotorType.kBrushless));
+        mBL = new SwerveModule(new CANSparkMax(PortMap.SWERVEBACKLEFTSPEEDCANMOTOR.portNumber, MotorType.kBrushless), new CANSparkMax(PortMap.SWERVEBACKLEFTANGLECANMOTOR.portNumber, MotorType.kBrushless));
+        mBR = new SwerveModule(new CANSparkMax(PortMap.SWERVEBACKRIGHTSPEEDCANMOTOR.portNumber, MotorType.kBrushless), new CANSparkMax(PortMap.SWERVEBACKRIGHTANGLECANMOTOR.portNumber, MotorType.kBrushless));
     }
 
-    public void SwerveDriveMath (double flightAxisX, double flightAxisY, double flightAxisZ) //X axis on the flight controller controls sideways component of strafing, Y axis on the flight controller controls forward/back component of strafing, Z axis controls rotation
+    public void SwerveDriveMath (double X, double Y, double Z) //X axis on the flight controller controls sideways component of strafing, Y axis on the flight controller controls forward/back component of strafing, Z axis controls rotation
     {
         double r = Math.sqrt ((Length * Length) + (Width * Width)); //Distance from corner wheel to opposite corner wheel of bot (ex. frontLeft to backRight); Uses Pythagorean Theorem
-        flightAxisY *= -1; //flips sign (- to +, or + to -)
+        Y *= -1; //flips sign (- to +, or + to -)
 
-        double a = flightAxisX - flightAxisZ * (Length / r); //Left/Right part of the desired vector for back side motors
-        double b = flightAxisX + flightAxisZ * (Length / r); //Left/Right part of the desired vector for front side motors
-        double c = flightAxisY - flightAxisZ * (Width / r); //Forward/Backward part of the desired vector for left side motors
-        double d = flightAxisY + flightAxisZ * (Width / r); //Forward/Backward part of the desired vector for right side motors
+        double a = X - Z * (Length / r); //Left/Right part of the desired vector for back side motors
+        double b = X + Z * (Length / r); //Left/Right part of the desired vector for front side motors
+        double c = Y - Z * (Width / r); //Forward/Backward part of the desired vector for left side motors
+        double d = Y + Z * (Width / r); //Forward/Backward part of the desired vector for right side motors
 
 
-        double backRightSpeed = Math.sqrt((a * a) + (d * d)); //Vector for total speed of back right motor found using Pythagorean Theorem (a^2 + d^2 = speed^2)
-        double backLeftSpeed = Math.sqrt((a * a) + (c * c)); //Vector for total speed of back left motor found using Pythagorean Theorem (a^2 + c^2 = speed^2)
-        double frontRightSpeed = Math.sqrt((b * b) + (d * d)); //Vector for total speed of front right motor found using Pythagorean Theorem (b^2 + d^2 = speed^2)
-        double frontLeftSpeed = Math.sqrt((b * b) + (c * c)); //Vector for total speed of front left motor found using Pythagorean Theorem (b^2 + c^2 = speed^2)
+        backRightSpeed = Math.sqrt((a * a) + (d * d)); //Vector for total speed of back right motor found using Pythagorean Theorem (a^2 + d^2 = speed^2)
+        backLeftSpeed = Math.sqrt((a * a) + (c * c)); //Vector for total speed of back left motor found using Pythagorean Theorem (a^2 + c^2 = speed^2)
+        frontRightSpeed = Math.sqrt((b * b) + (d * d)); //Vector for total speed of front right motor found using Pythagorean Theorem (b^2 + d^2 = speed^2)
+        frontLeftSpeed = Math.sqrt((b * b) + (c * c)); //Vector for total speed of front left motor found using Pythagorean Theorem (b^2 + c^2 = speed^2)
 
-        double backRightAngle = Math.atan2(a, d) / Math.PI; //Angle for the back right wheel found from the arctan of the left/right part and the forward/backward part of the desired vector for the motor, divided by pi to convert it to a value between -1 and 1 for the direction motor
-        double backLeftAngle = Math.atan2(a, c) / Math.PI; //Angle for the back left wheel found from the arctan of the left/right part and the forward/backward part of the desired vector for the motor, divided by pi to convert it to a value between -1 and 1 for the direction motor
-        double frontRightAngle = Math.atan2(b, d) / Math.PI; //Angle for the front right wheel found from the arctan of the left/right part and the forward/backward part of the desired vector for the motor, divided by pi to convert it to a value between -1 and 1 for the direction motor
-        double frontLeftAngle = Math.atan2(b, c) / Math.PI; //Angle for the front left wheel found from the arctan of the left/right part and the forward/backward part of the desired vector for the motor, divided by pi to convert it to a value between -1 and 1 for the direction motor
+        backRightAngle = Math.atan2(a, d) / Math.PI; //Angle for the back right wheel found from the arctan of the left/right part and the forward/backward part of the desired vector for the motor, divided by pi to convert it to a value between -1 and 1 for the direction motor
+        backLeftAngle = Math.atan2(a, c) / Math.PI; //Angle for the back left wheel found from the arctan of the left/right part and the forward/backward part of the desired vector for the motor, divided by pi to convert it to a value between -1 and 1 for the direction motor
+        frontRightAngle = Math.atan2(b, d) / Math.PI; //Angle for the front right wheel found from the arctan of the left/right part and the forward/backward part of the desired vector for the motor, divided by pi to convert it to a value between -1 and 1 for the direction motor
+        frontLeftAngle = Math.atan2(b, c) / Math.PI; //Angle for the front left wheel found from the arctan of the left/right part and the forward/backward part of the desired vector for the motor, divided by pi to convert it to a value between -1 and 1 for the direction motor
     }
 
-    public void SwerveDriveMathToWheels (double swerveSpeed, double swerveAngle)
+    private class SwerveModule 
     {
-        speedMotor.set (swerveSpeed);
-        
+        private CANSparkMax angleMotor; //change if different motors are used
+        private CANSparkMax speedMotor;
+        public RelativeEncoder angleMotorEncoder;
+        public PIDController pidController;
+        ModuleSave moduleSave;
+        public SwerveModule (CANSparkMax speedMotor, CANSparkMax angleMotor)
+        {
+            pidController = new PIDController(Settings.SwerveAngleKp, Settings.SwerveAngleKi, Settings.SwerveAngleKd);
+            this.angleMotor = angleMotor;
+            this.speedMotor = speedMotor;
+            angleMotorEncoder = angleMotor.getEncoder();
+            moduleSave = new ModuleSave();
+        }
+
+        private class ModuleSave 
+        {
+            public double driveMotorSpeed;
+            public double angleMotorSpeed;
+            public double desiredAngle;
+            public double currentAngle;
+
+        }
+
+        public void angleMotorMath ()
+        {
+            
+        }
+
+        public void desiredVector(double desiredSpeed, double desiredAngle)
+        {
+            moduleSave.driveMotorSpeed = desiredSpeed;
+            moduleSave.desiredAngle = desiredAngle;
+        }
+
+        public void update()
+        {
+            speedMotor.set(moduleSave.driveMotorSpeed);
+            angleMotor.set(moduleSave.angleMotorSpeed);
+            moduleSave.currentAngle = angleMotorEncoder.getPosition();
+        }
+
     }
-    
+
     /*Saves the current state the motors should be in */
     private class DriveSave
     {
@@ -85,7 +136,11 @@ public class SwerveDrive extends ControlSubSystems
     public void update()
     {
       SwerveDriveMath(Length, Width, Length);
-      SwerveDriveMathToWheels();
+
+      mBR.desiredVector(backRightSpeed, backRightAngle);
+      mBL.desiredVector(backLeftSpeed, backLeftAngle);
+      mFR.desiredVector(frontRightSpeed, frontRightAngle);
+      mFL.desiredVector(frontLeftSpeed, frontLeftAngle);
     }
 
     void swerve() 

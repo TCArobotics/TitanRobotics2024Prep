@@ -7,10 +7,15 @@ public enum PortMap {
     REARRIGHT(0),//And_You is 0, Menoteus is 0
     FRONTLEFT(3),//And_You is 2, Menoteus is 3
     REARLEFT(2),//And_You is 1, Menoteus in 2
-    ARMPIVOTMOTOR(4),
-    armCANID(21), //Id is 10 for And_You; Id is 21 for Ya_Like_Jazz
-    clawCANID(6); //motor does not exist on And_You; Id2 is 6 for Ya_Like_Jazz
+    SWERVEFRONTLEFTANGLECANMOTOR(0),
+    SWERVEFRONTRIGHTANGLECANMOTOR(0),
+    SWERVEBACKLEFTANGLECANMOTOR(0),
+    SWERVEBACKRIGHTANGLECANMOTOR(0),
 
+    SWERVEFRONTLEFTSPEEDCANMOTOR(0),
+    SWERVEFRONTRIGHTSPEEDCANMOTOR(0),
+    SWERVEBACKLEFTSPEEDCANMOTOR(0),
+    SWERVEBACKRIGHTSPEEDCANMOTOR(0);
 
     public int portNumber;
     private PortMap(int portValue) //constructor
