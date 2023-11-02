@@ -15,4 +15,9 @@ public class Modifiers {
         PIDcontrollermath.getIntergratorRange(-1000, 1000);
         PIDcontrollermath.getPositionTolerance();
     }
+
+    public void Slowmo()
+    {
+        double speed = 0.25;
+    }
 }
