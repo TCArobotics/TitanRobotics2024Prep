@@ -9,6 +9,7 @@ import edu.wpi.first.wpilibj2.command.PIDCommand;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
+import edu.wpi.first.wpilibj.AnalogEncoder;
 
 import frc.robot.data.PortMap;
 import frc.robot.data.Settings;
@@ -28,13 +29,16 @@ public class SwerveDrive extends ControlSubSystems
     double backLeftAngle;
     double frontRightAngle;
     double frontLeftAngle;    
+
+    AnalogEncoder backRightEncoder;
+    AnalogEncoder backLeftEncoder;
+    AnalogEncoder frontRightEncoder;
+    AnalogEncoder frontLeftEncoder;
     
     SwerveModule mFL;
     SwerveModule mFR;
     SwerveModule mBL;
     SwerveModule mBR;
-
-    DriveSave driveSave;
 
     private static SwerveDrive mSwerveInstance = null;
 
@@ -48,10 +52,15 @@ public class SwerveDrive extends ControlSubSystems
 
     public SwerveDrive()
     {
-        mFL = new SwerveModule(new CANSparkMax(PortMap.SWERVEFRONTLEFTSPEEDCANMOTOR.portNumber, MotorType.kBrushless), new CANSparkMax(PortMap.SWERVEFRONTLEFTANGLECANMOTOR.portNumber, MotorType.kBrushless)); //Front Left
-        mFR = new SwerveModule(new CANSparkMax(PortMap.SWERVEFRONTRIGHTSPEEDCANMOTOR.portNumber, MotorType.kBrushless), new CANSparkMax(PortMap.SWERVEFRONTRIGHTANGLECANMOTOR.portNumber, MotorType.kBrushless));
-        mBL = new SwerveModule(new CANSparkMax(PortMap.SWERVEBACKLEFTSPEEDCANMOTOR.portNumber, MotorType.kBrushless), new CANSparkMax(PortMap.SWERVEBACKLEFTANGLECANMOTOR.portNumber, MotorType.kBrushless));
-        mBR = new SwerveModule(new CANSparkMax(PortMap.SWERVEBACKRIGHTSPEEDCANMOTOR.portNumber, MotorType.kBrushless), new CANSparkMax(PortMap.SWERVEBACKRIGHTANGLECANMOTOR.portNumber, MotorType.kBrushless));
+        backRightEncoder = new AnalogEncoder(PortMap.BACKRIGHTANGLEENCODER.portNumber); //these are bearbotics bot only
+        backLeftEncoder = new AnalogEncoder(PortMap.BACKLEFTANGLEENCODER.portNumber);
+        frontRightEncoder = new AnalogEncoder(PortMap.FRONTRIGHTANGLEENCODER.portNumber);
+        frontLeftEncoder = new AnalogEncoder(PortMap.FRONTLEFTANGLEENCODER.portNumber);
+
+        mFL = new SwerveModule(new CANSparkMax(PortMap.SWERVEFRONTLEFTSPEEDCANMOTOR.portNumber, MotorType.kBrushless), new CANSparkMax(PortMap.SWERVEFRONTLEFTANGLECANMOTOR.portNumber, MotorType.kBrushless), frontLeftEncoder); //Front Left
+        mFR = new SwerveModule(new CANSparkMax(PortMap.SWERVEFRONTRIGHTSPEEDCANMOTOR.portNumber, MotorType.kBrushless), new CANSparkMax(PortMap.SWERVEFRONTRIGHTANGLECANMOTOR.portNumber, MotorType.kBrushless), frontRightEncoder);
+        mBL = new SwerveModule(new CANSparkMax(PortMap.SWERVEBACKLEFTSPEEDCANMOTOR.portNumber, MotorType.kBrushless), new CANSparkMax(PortMap.SWERVEBACKLEFTANGLECANMOTOR.portNumber, MotorType.kBrushless), backLeftEncoder);
+        mBR = new SwerveModule(new CANSparkMax(PortMap.SWERVEBACKRIGHTSPEEDCANMOTOR.portNumber, MotorType.kBrushless), new CANSparkMax(PortMap.SWERVEBACKRIGHTANGLECANMOTOR.portNumber, MotorType.kBrushless), backRightEncoder);
     }
 
     public void SwerveDriveMath (double X, double Y, double Z) //X axis on the flight controller controls sideways component of strafing, Y axis on the flight controller controls forward/back component of strafing, Z axis controls rotation
@@ -80,15 +89,19 @@ public class SwerveDrive extends ControlSubSystems
     {
         private CANSparkMax angleMotor; //change if different motors are used
         private CANSparkMax speedMotor;
-        public RelativeEncoder angleMotorEncoder;
+        //public RelativeEncoder angleMotorEncoder;
+        public AnalogEncoder angleMotorEncoder;
         public PIDController pidController;
         ModuleSave moduleSave;
-        public SwerveModule (CANSparkMax speedMotor, CANSparkMax angleMotor)
+        public SwerveModule (CANSparkMax speedMotor, CANSparkMax angleMotor, AnalogEncoder analogEncoder)
         {
             pidController = new PIDController(Settings.SwerveAngleKp, Settings.SwerveAngleKi, Settings.SwerveAngleKd);
             this.angleMotor = angleMotor;
             this.speedMotor = speedMotor;
-            angleMotorEncoder = angleMotor.getEncoder();
+            //angleMotorEncoder = angleMotor.getEncoder();
+            angleMotorEncoder = analogEncoder;
+            angleMotorEncoder.setDistancePerRotation(2);
+
             moduleSave = new ModuleSave();
         }
 
@@ -103,7 +116,7 @@ public class SwerveDrive extends ControlSubSystems
 
         public void angleMotorMath ()
         {
-            
+           moduleSave.angleMotorSpeed = pidController.calculate(moduleSave.currentAngle, moduleSave.desiredAngle);
         }
 
         public void desiredVector(double desiredSpeed, double desiredAngle)
@@ -114,22 +127,16 @@ public class SwerveDrive extends ControlSubSystems
 
         public void update()
         {
+           // moduleSave.currentAngle = angleMotorEncoder.getPosition();
+            moduleSave.currentAngle = angleMotorEncoder.getDistance();
+            angleMotorMath();
             speedMotor.set(moduleSave.driveMotorSpeed);
             angleMotor.set(moduleSave.angleMotorSpeed);
-            moduleSave.currentAngle = angleMotorEncoder.getPosition();
         }
 
     }
 
     /*Saves the current state the motors should be in */
-    private class DriveSave
-    {
-        public double swerveFrontLeft;
-        public double swerveFrontRight;
-        public double swerveBackLeft;
-        public double swerveBackRight;
-
-    }
 
     @Override
     /*Updates the state the motors are in */
@@ -141,6 +148,11 @@ public class SwerveDrive extends ControlSubSystems
       mBL.desiredVector(backLeftSpeed, backLeftAngle);
       mFR.desiredVector(frontRightSpeed, frontRightAngle);
       mFL.desiredVector(frontLeftSpeed, frontLeftAngle);
+
+      mBR.update();
+      mBL.update();
+      mFR.update();
+      mFL.update();
     }
 
     void swerve() 

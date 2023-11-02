@@ -24,6 +24,7 @@ public class Control extends Teleopsubsystem {
         this.tank();
         this.swerve();
         mTankDrive.update();
+        mSwerveDrive.update();
     } 
 
     /**
