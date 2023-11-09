@@ -7,7 +7,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import java.util.HashMap;
 import edu.wpi.first.wpilibj.Timer;
 
-public class Controllers extends ControlSubSystems { // may whant to rewright some time later 7-26-2023
+public class Controllers { // may whant to rewright some time later 7-26-2023
     private XboxController xboxController; 
     
     private HashMap<ButtonMap, Double> buttons;

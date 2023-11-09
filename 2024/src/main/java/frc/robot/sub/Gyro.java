@@ -1,6 +1,6 @@
 package frc.robot.sub;
 
-public class Gyro extends ControlSubSystems 
+public class Gyro 
 {
     
     private static Gyro mInstance = null;

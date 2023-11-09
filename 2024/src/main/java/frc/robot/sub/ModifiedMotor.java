@@ -5,7 +5,7 @@ import edu.wpi.first.wpilibj.motorcontrol.MotorController;
 import edu.wpi.first.wpilibj.motorcontrol.PWMVictorSPX;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
-public class ModifiedMotor extends ControlSubSystems
+public class ModifiedMotor
 {
     private int portNumber;
     private final MotorController motor;

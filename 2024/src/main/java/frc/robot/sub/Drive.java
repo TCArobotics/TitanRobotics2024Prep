@@ -3,7 +3,7 @@ package frc.robot.sub;
 import frc.robot.data.PortMap;
 //import frc.robot.sub.ModifiedMotor;
 
-public class Drive extends ControlSubSystems
+public class Drive
 {
     private final ModifiedMotor motorFrontLeft;
     private final ModifiedMotor motorRearLeft;
