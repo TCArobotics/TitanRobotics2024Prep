@@ -21,9 +21,9 @@ public class Control extends Teleopsubsystem {
     /**Performs all updates needed to be executed durning Telop */
     public void telopUpdate()
     {
-        this.tank();
+        //this.tank();
         this.swerve();
-        mTankDrive.update();
+        //mTankDrive.update();
         mSwerveDrive.update();
     } 
 
