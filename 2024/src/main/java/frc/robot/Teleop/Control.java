@@ -14,7 +14,7 @@ public class Control extends Teleopsubsystem {
     public Control()
     {
         mSwerveDrive = SwerveDrive.getInstance();
-        mTankDrive = TankDrive.getInstance();
+        //mTankDrive = TankDrive.getInstance();
         controllers = new Controllers();
     }
 
@@ -42,6 +42,7 @@ public class Control extends Teleopsubsystem {
         double flightAxisYInput = controllers.getStickFlight(ButtonMap.FlightSTICKY);
         double flightAxisZInput = controllers.getStickFlight(ButtonMap.FlightSTICKZ);
         mSwerveDrive.SwerveDriveMath(flightAxisXInput, flightAxisYInput, flightAxisZInput);
+        //System.out.println(flightAxisXInput);
     }
 
 }
