@@ -38,10 +38,14 @@ public class Control extends Teleopsubsystem {
     }
     
     public void swerve(){
-        double flightAxisXInput = controllers.getStickFlight(ButtonMap.FlightSTICKX);
-        double flightAxisYInput = controllers.getStickFlight(ButtonMap.FlightSTICKY);
-        double flightAxisZInput = controllers.getStickFlight(ButtonMap.FlightSTICKZ);
-        mSwerveDrive.SwerveDriveMath(flightAxisXInput, flightAxisYInput, flightAxisZInput);
+        double xboxLeftStickYInput = controllers.getStickXbox(ButtonMap.XboxLEFTSTICKY);
+        double xboxLeftStickXInput = controllers.getStickXbox(ButtonMap.XboxLEFTSTICKX);
+        double xboxRightStickXInput = controllers.getStickXbox(ButtonMap.XboxRIGHTSTICKX);
+        //double flightAxisXInput = controllers.getStickFlight(ButtonMap.FlightSTICKX);
+        //double flightAxisYInput = controllers.getStickFlight(ButtonMap.FlightSTICKY);
+        //double flightAxisZInput = controllers.getStickFlight(ButtonMap.FlightSTICKZ);
+        //mSwerveDrive.SwerveDriveMath(flightAxisXInput, flightAxisYInput, flightAxisZInput);
+        mSwerveDrive.SwerveDriveMath(xboxLeftStickXInput, xboxLeftStickYInput, xboxRightStickXInput);
         //System.out.println(flightAxisXInput);
     }
 

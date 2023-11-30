@@ -68,6 +68,13 @@ public class SwerveDrive extends ControlSubSystems
         frontRightEncoder = new AnalogEncoder(PortMap.FRONTRIGHTANGLEENCODER.portNumber);
         frontLeftEncoder = new AnalogEncoder(PortMap.FRONTLEFTANGLEENCODER.portNumber);
 
+        backRightEncoder.reset();
+        backLeftEncoder.reset();
+        frontRightEncoder.reset();
+        frontLeftEncoder.reset();
+
+        
+
         mFL = new SwerveModule(new CANSparkMax(PortMap.SWERVEFRONTLEFTSPEEDCANMOTOR.portNumber, MotorType.kBrushless), new VictorSPX(PortMap.SWERVEFRONTLEFTANGLECANMOTOR.portNumber), frontLeftEncoder);//new CANSparkMax(PortMap.SWERVEFRONTLEFTANGLECANMOTOR.portNumber, MotorType.kBrushless), frontLeftEncoder); //Front Left
         mFR = new SwerveModule(new CANSparkMax(PortMap.SWERVEFRONTRIGHTSPEEDCANMOTOR.portNumber, MotorType.kBrushless), new VictorSPX(PortMap.SWERVEFRONTRIGHTANGLECANMOTOR.portNumber), frontRightEncoder); //new CANSparkMax(PortMap.SWERVEFRONTRIGHTANGLECANMOTOR.portNumber, MotorType.kBrushless), frontRightEncoder);
         mBL = new SwerveModule(new CANSparkMax(PortMap.SWERVEBACKLEFTSPEEDCANMOTOR.portNumber, MotorType.kBrushless), new VictorSPX(PortMap.SWERVEBACKLEFTANGLECANMOTOR.portNumber), frontRightEncoder);//new CANSparkMax(PortMap.SWERVEBACKLEFTANGLECANMOTOR.portNumber, MotorType.kBrushless), backLeftEncoder);
@@ -79,8 +86,8 @@ public class SwerveDrive extends ControlSubSystems
         double r = Math.sqrt ((Length * Length) + (Width * Width)); //Distance from corner wheel to opposite corner wheel of bot (ex. frontLeft to backRight); Uses Pythagorean Theorem
         Y *= -1; //flips sign (- to +, or + to -)
 
-        double a = X - Z * (Length / r); //Left/Right part of the desired vector for back side motors
-        double b = X + Z * (Length / r); //Left/Right part of the desired vector for front side motors
+        double a = (-X) - Z * (Length / r); //Left/Right part of the desired vector for back side motors
+        double b = (-X) + Z * (Length / r); //Left/Right part of the desired vector for front side motors
         double c = Y - Z * (Width / r); //Forward/Backward part of the desired vector for left side motors
         double d = Y + Z * (Width / r); //Forward/Backward part of the desired vector for right side motors
 
@@ -113,7 +120,7 @@ public class SwerveDrive extends ControlSubSystems
 
         public SwerveModule (CANSparkMax speedMotor, VictorSPX angleMotor, AnalogEncoder analogEncoder) //CANSparkMax angleMotor
         {
-            pidController = new PIDController(Settings.SwerveAngleKp, Settings.SwerveAngleKi, Settings.SwerveAngleKd);
+            this.pidController = new PIDController(Settings.SwerveAngleKp, Settings.SwerveAngleKi, Settings.SwerveAngleKd);
             pidController.enableContinuousInput(-1, 1);
             this.angleMotor = angleMotor;
             this.speedMotor = speedMotor;
@@ -175,6 +182,8 @@ public class SwerveDrive extends ControlSubSystems
       //System.out.println("BL angleSpeed:" + mBL.moduleSave.angleMotorSpeed + "BL speed:" + mBL.moduleSave.driveMotorSpeed + "BL angle:" + mBL.moduleSave.currentAngle);
       //System.out.println("FR angleSpeed:" + mFR.moduleSave.angleMotorSpeed + "FR speed:" + mFR.moduleSave.driveMotorSpeed + "FR angle:" + mFR.moduleSave.currentAngle);
       //System.out.println("FL angleSpeed:" + mFL.moduleSave.angleMotorSpeed + "FL speed:" + mFL.moduleSave.driveMotorSpeed + "FL angle:" + mFL.moduleSave.currentAngle);
+      System.out.println("BL angle:" + mBL.moduleSave.currentAngle);
+      System.out.println("FL angle:" + mFL.moduleSave.currentAngle);
     }
 
     void swerve() 
