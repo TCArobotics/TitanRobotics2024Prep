@@ -41,10 +41,10 @@ public class SwerveDrive extends ControlSubSystems
     double frontRightAngle;
     double frontLeftAngle;    
 
-    AnalogEncoder backRightEncoder;
-    AnalogEncoder backLeftEncoder;
-    AnalogEncoder frontRightEncoder;
-    AnalogEncoder frontLeftEncoder;
+    //AnalogEncoder backRightEncoder;
+    //AnalogEncoder backLeftEncoder;
+    //AnalogEncoder frontRightEncoder;
+    //AnalogEncoder frontLeftEncoder;
     
     SwerveModule mFL;
     SwerveModule mFR;
@@ -63,22 +63,22 @@ public class SwerveDrive extends ControlSubSystems
 
     public SwerveDrive()
     {
-        backRightEncoder = new AnalogEncoder(PortMap.BACKRIGHTANGLEENCODER.portNumber); //these are bearbotics bot only
-        backLeftEncoder = new AnalogEncoder(PortMap.BACKLEFTANGLEENCODER.portNumber);
-        frontRightEncoder = new AnalogEncoder(PortMap.FRONTRIGHTANGLEENCODER.portNumber);
-        frontLeftEncoder = new AnalogEncoder(PortMap.FRONTLEFTANGLEENCODER.portNumber);
+        //backRightEncoder = new AnalogEncoder(PortMap.BACKRIGHTANGLEENCODER.portNumber); //these are bearbotics bot only
+        //backLeftEncoder = new AnalogEncoder(PortMap.BACKLEFTANGLEENCODER.portNumber);
+        //frontRightEncoder = new AnalogEncoder(PortMap.FRONTRIGHTANGLEENCODER.portNumber);
+        //frontLeftEncoder = .getEncoder;
 
-        backRightEncoder.reset();
-        backLeftEncoder.reset();
-        frontRightEncoder.reset();
-        frontLeftEncoder.reset();
+        //backRightEncoder.reset();
+        //backLeftEncoder.reset();
+        //frontRightEncoder.reset();
+        //frontLeftEncoder.reset();
 
         
 
-        mFL = new SwerveModule(new CANSparkMax(PortMap.SWERVEFRONTLEFTSPEEDCANMOTOR.portNumber, MotorType.kBrushless), new VictorSPX(PortMap.SWERVEFRONTLEFTANGLECANMOTOR.portNumber), frontLeftEncoder);//new CANSparkMax(PortMap.SWERVEFRONTLEFTANGLECANMOTOR.portNumber, MotorType.kBrushless), frontLeftEncoder); //Front Left
-        mFR = new SwerveModule(new CANSparkMax(PortMap.SWERVEFRONTRIGHTSPEEDCANMOTOR.portNumber, MotorType.kBrushless), new VictorSPX(PortMap.SWERVEFRONTRIGHTANGLECANMOTOR.portNumber), frontRightEncoder); //new CANSparkMax(PortMap.SWERVEFRONTRIGHTANGLECANMOTOR.portNumber, MotorType.kBrushless), frontRightEncoder);
-        mBL = new SwerveModule(new CANSparkMax(PortMap.SWERVEBACKLEFTSPEEDCANMOTOR.portNumber, MotorType.kBrushless), new VictorSPX(PortMap.SWERVEBACKLEFTANGLECANMOTOR.portNumber), frontRightEncoder);//new CANSparkMax(PortMap.SWERVEBACKLEFTANGLECANMOTOR.portNumber, MotorType.kBrushless), backLeftEncoder);
-        mBR = new SwerveModule(new CANSparkMax(PortMap.SWERVEBACKRIGHTSPEEDCANMOTOR.portNumber, MotorType.kBrushless), new VictorSPX(PortMap.SWERVEBACKLEFTANGLECANMOTOR.portNumber), backRightEncoder);//new CANSparkMax(PortMap.SWERVEBACKLEFTANGLECANMOTOR.portNumber, MotorType.kBrushless), backRightEncoder);
+        mFL = new SwerveModule(new CANSparkMax(PortMap.SWERVEFRONTLEFTSPEEDCANMOTOR.portNumber, MotorType.kBrushless), new CANSparkMax(PortMap.SWERVEFRONTLEFTANGLECANMOTOR.portNumber, MotorType.kBrushless));//new CANSparkMax(PortMap.SWERVEFRONTLEFTANGLECANMOTOR.portNumber, MotorType.kBrushless), frontLeftEncoder); //Front Left
+        mFR = new SwerveModule(new CANSparkMax(PortMap.SWERVEFRONTRIGHTSPEEDCANMOTOR.portNumber, MotorType.kBrushless), new CANSparkMax(PortMap.SWERVEFRONTRIGHTANGLECANMOTOR.portNumber, MotorType.kBrushless)); //new CANSparkMax(PortMap.SWERVEFRONTRIGHTANGLECANMOTOR.portNumber, MotorType.kBrushless), frontRightEncoder);
+        mBL = new SwerveModule(new CANSparkMax(PortMap.SWERVEBACKLEFTSPEEDCANMOTOR.portNumber, MotorType.kBrushless), new CANSparkMax(PortMap.SWERVEBACKLEFTANGLECANMOTOR.portNumber, MotorType.kBrushless));//new CANSparkMax(PortMap.SWERVEBACKLEFTANGLECANMOTOR.portNumber, MotorType.kBrushless), backLeftEncoder);
+        mBR = new SwerveModule(new CANSparkMax(PortMap.SWERVEBACKRIGHTSPEEDCANMOTOR.portNumber, MotorType.kBrushless), new CANSparkMax(PortMap.SWERVEBACKLEFTANGLECANMOTOR.portNumber, MotorType.kBrushless));//new CANSparkMax(PortMap.SWERVEBACKLEFTANGLECANMOTOR.portNumber, MotorType.kBrushless), backRightEncoder);
     }
 
     public void SwerveDriveMath (double X, double Y, double Z) //X axis on the flight controller controls sideways component of strafing, Y axis on the flight controller controls forward/back component of strafing, Z axis controls rotation
@@ -103,30 +103,30 @@ public class SwerveDrive extends ControlSubSystems
         frontLeftAngle = Math.atan2(b, c) / Math.PI; //Angle for the front left wheel found from the arctan of the left/right part and the forward/backward part of the desired vector for the motor, divided by pi to convert it to a value between -1 and 1 for the direction motor
 
         //System.out.println("X" + X + "Y" + Y + "Z" + Z ); //+ "a" + a);
-        System.out.println("BR" + backRightAngle + "BL" + backLeftAngle + "FR" + frontRightAngle + "FL" + frontLeftAngle);
+        //System.out.println("BR" + backRightAngle + "BL" + backLeftAngle + "FR" + frontRightAngle + "FL" + frontLeftAngle);
         //System.out.println("c" + c);
         //System.out.println("d" + d);
     }
 
     private class SwerveModule 
     {
-        private VictorSPX angleMotor;
-        //private CANSparkMax angleMotor; //change if different motors are used
+        //private VictorSPX angleMotor;
+        private CANSparkMax angleMotor; //change if different motors are used
         private CANSparkMax speedMotor;
-        //public RelativeEncoder angleMotorEncoder;
-        public AnalogEncoder angleMotorEncoder;
+        public RelativeEncoder angleMotorEncoder;
+        //public angleMotorEncoder;
         public PIDController pidController;
         ModuleSave moduleSave;
 
-        public SwerveModule (CANSparkMax speedMotor, VictorSPX angleMotor, AnalogEncoder analogEncoder) //CANSparkMax angleMotor
+
+        public SwerveModule (CANSparkMax speedMotor, CANSparkMax angleMotor) //CANSparkMax angleMotor
         {
             this.pidController = new PIDController(Settings.SwerveAngleKp, Settings.SwerveAngleKi, Settings.SwerveAngleKd);
             pidController.enableContinuousInput(-1, 1);
             this.angleMotor = angleMotor;
             this.speedMotor = speedMotor;
             //angleMotorEncoder = angleMotor.getEncoder();
-            angleMotorEncoder = analogEncoder;
-            angleMotorEncoder.setDistancePerRotation(2);
+            angleMotorEncoder = angleMotor.getEncoder();
 
             moduleSave = new ModuleSave();
         }
@@ -152,14 +152,14 @@ public class SwerveDrive extends ControlSubSystems
 
         public void update()
         {
-           // moduleSave.currentAngle = angleMotorEncoder.getPosition();
-            moduleSave.currentAngle = angleMotorEncoder.getDistance();
+            moduleSave.currentAngle = angleMotorEncoder.getPosition();
+            //moduleSave.currentAngle = angleMotorEncoder.getEncoder();
 
             angleMotorMath();
             
             speedMotor.set(moduleSave.driveMotorSpeed);
-            //angleMotor.set(moduleSave.angleMotorSpeed);
-            angleMotor.set(ControlMode.PercentOutput, moduleSave.angleMotorSpeed);
+            angleMotor.set(moduleSave.angleMotorSpeed);
+           //angleMotor.set(ControlMode.PercentOutput, moduleSave.angleMotorSpeed);
         }
 
     }
