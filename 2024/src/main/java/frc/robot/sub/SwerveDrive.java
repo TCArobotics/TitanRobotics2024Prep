@@ -49,7 +49,7 @@ public class SwerveDrive extends ControlSubSystems
     SwerveModule mFL;
     SwerveModule mFR;
     SwerveModule mBL;
-    SwerveModule mBR;
+    public SwerveModule mBR;
 
     private static SwerveDrive mSwerveInstance = null;
 
@@ -108,7 +108,7 @@ public class SwerveDrive extends ControlSubSystems
         //System.out.println("d" + d);
     }
 
-    private class SwerveModule 
+    public class SwerveModule 
     {
         //private VictorSPX angleMotor;
         private CANSparkMax angleMotor; //change if different motors are used
@@ -122,11 +122,13 @@ public class SwerveDrive extends ControlSubSystems
         public SwerveModule (CANSparkMax speedMotor, CANSparkMax angleMotor) //CANSparkMax angleMotor
         {
             this.pidController = new PIDController(Settings.SwerveAngleKp, Settings.SwerveAngleKi, Settings.SwerveAngleKd);
-            pidController.enableContinuousInput(-1, 1);
+            pidController.enableContinuousInput(0, 2);
             this.angleMotor = angleMotor;
             this.speedMotor = speedMotor;
             //angleMotorEncoder = angleMotor.getEncoder();
             angleMotorEncoder = angleMotor.getEncoder();
+            angleMotorEncoder.setPosition(0);
+            
 
             moduleSave = new ModuleSave();
         }
@@ -138,27 +140,31 @@ public class SwerveDrive extends ControlSubSystems
             public double desiredAngle;
             public double currentAngle;
         }
+       /*  public void setOterAgle2(double desiredAngle){
+            this.moduleSave.desiredAngle = desiredAngle;
+        }*/
 
         public void angleMotorMath ()
         {
            moduleSave.angleMotorSpeed = pidController.calculate(moduleSave.currentAngle, moduleSave.desiredAngle);
         }
 
+
         public void desiredVector(double desiredSpeed, double desiredAngle)
         {
-            moduleSave.driveMotorSpeed = desiredSpeed;
-            moduleSave.desiredAngle = desiredAngle;
+            this.moduleSave.driveMotorSpeed = desiredSpeed;
+            this.moduleSave.desiredAngle = desiredAngle;
         }
 
         public void update()
         {
-            moduleSave.currentAngle = angleMotorEncoder.getPosition();
+            moduleSave.currentAngle = (angleMotorEncoder.getPosition() / 30);
             //moduleSave.currentAngle = angleMotorEncoder.getEncoder();
 
-            //angleMotorMath();
+            angleMotorMath();
             
-            speedMotor.set(moduleSave.driveMotorSpeed);
-            angleMotor.set(moduleSave.angleMotorSpeed);
+            this.speedMotor.set(moduleSave.driveMotorSpeed);
+            this.angleMotor.set(moduleSave.angleMotorSpeed);
            //angleMotor.set(ControlMode.PercentOutput, moduleSave.angleMotorSpeed);
         }
 
@@ -173,7 +179,16 @@ public class SwerveDrive extends ControlSubSystems
       mFR.desiredVector(frontRightSpeed, frontRightAngle);
       mFL.desiredVector(frontLeftSpeed, frontLeftAngle);
         
-      mBR.moduleSave.driveMotorSpeed=0.1;
+      //mBR.moduleSave.driveMotorSpeed = 0.0;
+      //mBL.moduleSave.driveMotorSpeed = 0.0;
+      //mFR.moduleSave.driveMotorSpeed = 0.0;
+      //mFL.moduleSave.driveMotorSpeed = 0.0;
+
+      System.out.println( mBR.moduleSave.desiredAngle);
+      //mBL.moduleSave.angleMotorSpeed = 0.0;
+      //mFR.moduleSave.angleMotorSpeed = 0.0;
+      //mFL.moduleSave.angleMotorSpeed = 0.0;
+      
       mBR.update();
       mBL.update();
       mFR.update();
