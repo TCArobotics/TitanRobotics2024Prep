@@ -1,14 +1,16 @@
 package frc.robot.sub;
 
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.Joystick;
 import frc.robot.data.ButtonMap;
 import frc.robot.data.PortMap;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import java.util.HashMap;
 import edu.wpi.first.wpilibj.Timer;
 
-public class Controllers extends ControlSubSystems { // may whant to rewright some time later 7-26-2023
+public class Controllers extends ControlSubSystems { // may want to rewrite some time later 7-26-2023
     private XboxController xboxController; 
+    Joystick flightController = new Joystick(1);
     
     private HashMap<ButtonMap, Double> buttons;
     private double debouncePeriod = 0.1; //The time before a button is allowed to be pressed again in seconds
@@ -24,6 +26,16 @@ public class Controllers extends ControlSubSystems { // may whant to rewright so
             SmartDashboard.putNumber("XboxControllerNotFound", PortMap.GAMEPADXBOX.portNumber);
         }
         this.buttons = new HashMap<ButtonMap, Double>();
+        
+       /* try
+        {
+            Joystick flightController = new Joystick(1);
+        }
+        catch (Exception flightControllerNotAssigned)
+        {
+            this.flightController = null;
+        } */
+
         init();
     }
     
@@ -50,7 +62,21 @@ public class Controllers extends ControlSubSystems { // may whant to rewright so
             return false;
         }
     }
-    
+
+    public boolean getButtonFlightPressed(ButtonMap buttonName) //Input the ButtonMap name and receive if button is pressed, boolean true or false; has debounce (time before button can output true again)
+    {
+        double currentTime = Timer.getFPGATimestamp();
+        if(currentTime - buttons.get(buttonName) > this.debouncePeriod)
+        {
+            buttons.replace(buttonName, currentTime);
+            return flightController.getRawButton(buttonName.value);
+        }
+        else
+        {
+            return false;
+        }
+    }
+
     /**Input the ButtonMap name and receive if button is pressed, boolean true or false; does not have debounce (allows for motors to be triggered by press and hold until button is released) */
     public boolean getButtonXboxPressedDebounceOff(ButtonMap buttonName) 
     {   if (this.xboxController != null)
@@ -62,9 +88,14 @@ public class Controllers extends ControlSubSystems { // may whant to rewright so
             return false;
         }
     }
-
+    
+    public boolean getButtonFlightPressedDebounceOff(ButtonMap buttonName) //Input the ButtonMap name and receive if button is pressed, boolean true or false; does not have debounce (allows for motors to be triggered by press and hold until button is released)
+    {
+        return flightController.getRawButton(buttonName.value);
+    }
+    
     /**Input the ButtonMap name and axis and receive its value, double between -1 and 1 */
-    public double getStick(ButtonMap stickAxis) 
+    public double getStickXbox(ButtonMap stickAxis) 
     {  if (this.xboxController != null)
         {   try {
             switch(stickAxis)
@@ -81,9 +112,9 @@ public class Controllers extends ControlSubSystems { // may whant to rewright so
                     return 0;
             }
         }  
-        catch (Exception AxisNotFound) 
+        catch (Exception XboxAxisNotFound) 
         {
-            SmartDashboard.putString("ControllerError", "AxisNotFound");
+            SmartDashboard.putString("XboxControllerError", "AxisNotFound");
             return 0;
         }
         } 
@@ -92,5 +123,26 @@ public class Controllers extends ControlSubSystems { // may whant to rewright so
         return 0;
         }     
     }
-
+    public double getStickFlight(ButtonMap stickAxis)
+    {   try {
+        switch(stickAxis)
+            {
+                case FlightSTICKX:
+                    return flightController.getRawAxis(0); //gives the value from -1 to 1 for the specified axis (axis shown in driverstation for controller when controller is plugged in)
+                case FlightSTICKY:
+                    return flightController.getRawAxis(1); //gives the value from -1 to 1 for the specified axis (axis shown in driverstation for controller when controller is plugged in)
+                case FlightSTICKZ:
+                    return flightController.getRawAxis(2); //gives the value from -1 to 1 for the specified axis (axis shown in driverstation for controller when controller is plugged in)
+                case FlightSLIDER:
+                    return flightController.getRawAxis(3); //gives the value from -1 to 1 for the specified axis (axis shown in driverstation for controller when controller is plugged in)     
+                default:
+                    return 0;
+            }
+        }
+        catch (Exception FlightAxisNotFound)
+        {
+            SmartDashboard.putString("FlightControllerError", "AxisNotFound");
+            return 0;
+        }
+    }
 }

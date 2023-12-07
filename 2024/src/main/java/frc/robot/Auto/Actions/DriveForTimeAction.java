@@ -1,14 +1,14 @@
 package frc.robot.Auto.Actions;
 //import frc.robot.Auto.Actions.Actions;
 import edu.wpi.first.wpilibj.Timer;
-import frc.robot.sub.Drive;
+//import frc.robot.sub.Drive;
 
 public class DriveForTimeAction implements Actions
 {   
     Timer timer;
     double seconds;
     double speed;
-    private Drive mDrive = null;
+   // private Drive mDrive = null;
     /**
      * Run code once when the action is started, for setup
      */
@@ -30,7 +30,7 @@ public class DriveForTimeAction implements Actions
      */
     @Override
     public void update(){
-    mDrive.drive(this.speed, 0);
+    //mDrive.drive(this.speed, 0);
     }
 
     /**
@@ -54,7 +54,7 @@ public class DriveForTimeAction implements Actions
      */
     @Override
     public void done(){
-        mDrive.drive(0, 0);
+       // mDrive.drive(0, 0);
     }
 
 }
