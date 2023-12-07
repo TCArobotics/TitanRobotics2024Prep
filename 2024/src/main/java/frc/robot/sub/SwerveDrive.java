@@ -15,9 +15,6 @@ import edu.wpi.first.wpilibj.AnalogEncoder;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.BaseMotorController;
 
-import com.ctre.phoenix.motorcontrol.can.VictorSPX;
-import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
-
 //import com.ctre.phoenix.motorcontrol.Faults;
 //import com.ctre.phoenix.motorcontrol.InvertType;
 //import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
@@ -67,7 +64,7 @@ public class SwerveDrive extends ControlSubSystems
         //backLeftEncoder = new AnalogEncoder(PortMap.BACKLEFTANGLEENCODER.portNumber);
         //frontRightEncoder = new AnalogEncoder(PortMap.FRONTRIGHTANGLEENCODER.portNumber);
         //frontLeftEncoder = .getEncoder;
-
+        
         //backRightEncoder.reset();
         //backLeftEncoder.reset();
         //frontRightEncoder.reset();
@@ -86,13 +83,13 @@ public class SwerveDrive extends ControlSubSystems
         double r = Math.sqrt ((Length * Length) + (Width * Width)); //Distance from corner wheel to opposite corner wheel of bot (ex. frontLeft to backRight); Uses Pythagorean Theorem
         Y *= -1; //flips sign (- to +, or + to -)
 
-        double a = (-X) - Z * (Length / r); //Left/Right part of the desired vector for back side motors
-        double b = (-X) + Z * (Length / r); //Left/Right part of the desired vector for front side motors
-        double c = Y - Z * (Width / r); //Forward/Backward part of the desired vector for left side motors
-        double d = Y + Z * (Width / r); //Forward/Backward part of the desired vector for right side motors
+        double a = (X) - 0 * (Length / r); //Left/Right part of the desired vector for back side motors
+        double b = (X) + 0 * (Length / r); //Left/Right part of the desired vector for front side motors
+        double c = Y - 0 * (Width / r); //Forward/Backward part of the desired vector for left side motors
+        double d = Y + 0 * (Width / r); //Forward/Backward part of the desired vector for right side motors
 
 
-        backRightSpeed = Math.sqrt((a * a) + (d * d)); //Vector for total speed of back right motor found using Pythagorean Theorem (a^2 + d^2 = speed^2)
+        backRightSpeed = Math.sqrt((a * (a)) + (d * d)); //Vector for total speed of back right motor found using Pythagorean Theorem (a^2 + d^2 = speed^2)
         backLeftSpeed = Math.sqrt((a * a) + (c * c)); //Vector for total speed of back left motor found using Pythagorean Theorem (a^2 + c^2 = speed^2)
         frontRightSpeed = Math.sqrt((b * b) + (d * d)); //Vector for total speed of front right motor found using Pythagorean Theorem (b^2 + d^2 = speed^2)
         frontLeftSpeed = Math.sqrt((b * b) + (c * c)); //Vector for total speed of front left motor found using Pythagorean Theorem (b^2 + c^2 = speed^2)
@@ -158,7 +155,8 @@ public class SwerveDrive extends ControlSubSystems
 
         public void update()
         {
-            moduleSave.currentAngle = (angleMotorEncoder.getPosition() / 30);
+            moduleSave.currentAngle = (angleMotorEncoder.getPosition() / (75/7));
+            //moduleSave.currentAngle = (angleMotorEncoder.);
             //moduleSave.currentAngle = angleMotorEncoder.getEncoder();
 
             angleMotorMath();
@@ -199,7 +197,7 @@ public class SwerveDrive extends ControlSubSystems
       //System.out.println("FR angleSpeed:" + mFR.moduleSave.angleMotorSpeed + "FR speed:" + mFR.moduleSave.driveMotorSpeed + "FR angle:" + mFR.moduleSave.currentAngle);
       //System.out.println("FL angleSpeed:" + mFL.moduleSave.angleMotorSpeed + "FL speed:" + mFL.moduleSave.driveMotorSpeed + "FL angle:" + mFL.moduleSave.currentAngle);
       System.out.println("BL angle:" + mBL.moduleSave.currentAngle);
-      System.out.println("FL angle:" + mFL.moduleSave.currentAngle);
+      //System.out.println("FL angle:" + mFL.moduleSave.currentAngle);
     }
 
     void swerve() 
