@@ -1,18 +1,18 @@
 package frc.robot.Auto.Actions;
 //import frc.robot.Auto.Actions.Actions;
 import edu.wpi.first.wpilibj.Timer;
-import frc.robot.sub.TankDrive;
+import frc.robot.sub.SwerveDrive;
 
-public class DriveForTimeAction implements Actions
+public class SwerveForwardsTime implements Actions
 {   
     Timer timer;
     double seconds;
     double speed;
-    private TankDrive mTankDrive = null;
+    private SwerveDrive mSwerveDrive = null;
     /**
      * Run code once when the action is started, for setup
      */
-    public DriveForTimeAction(double seconds, double speed)
+    public SwerveForwardsTime(double seconds, double speed)
     {
         this.seconds = seconds;
         this.speed = speed;
@@ -30,7 +30,7 @@ public class DriveForTimeAction implements Actions
      */
     @Override
     public void update(){
-    mTankDrive.tankDrive(this.speed, 0);
+    mSwerveDrive.SwerveDriveMath(0, speed, 0);
     }
 
     /**
@@ -54,7 +54,7 @@ public class DriveForTimeAction implements Actions
      */
     @Override
     public void done(){
-        mTankDrive.tankDrive(0, 0);
+        mSwerveDrive.SwerveDriveMath(0, 0, 0);
     }
 
 }
